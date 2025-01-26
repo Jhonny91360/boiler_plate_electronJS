@@ -1,26 +1,29 @@
 import { useEffect, useState } from "react";
-
 import "./App.css";
 import { db } from "./db/db";
+import { Button, NativeSelect } from "@mantine/core";
 
 function App() {
   const [count, setCount] = useState(0);
+  const [value, setValue] = useState("");
 
   useEffect(() => {
+    // Llamamos al metodo que envia datos cada 3 seg desde electron
     // @ts-ignore
     window.electron.suscribeStatistics((data: any) => console.log(data));
   }, []);
 
   const getStaticData = async () => {
+    // Mandamos peticion al back (electron)
     // @ts-ignore
-    const response = await window.electron.getStaticData("hpta");
+    const response = await window.electron.getStaticData("hola desde front!");
     alert(response);
   };
   const addDataToDB = async () => {
     const age = 10;
     const name = "Jhonny";
     try {
-      // Add the new friend!
+      // Cargamos los datos en indexedDB
       const id = await db.friends.add({
         name,
         age,
@@ -32,21 +35,24 @@ function App() {
   };
   return (
     <>
-      <div></div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <button onClick={getStaticData}>Solicitar datos al backend</button>
-        <button onClick={addDataToDB}>Agregar datos a db</button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
+      <div style={{ margin: "20px" }}>
+        <Button onClick={() => setCount(count + 1)}>Count is {count}</Button>
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+
+      <div style={{ margin: "20px" }}>
+        <Button onClick={getStaticData}>Enviar peticion al back</Button>
+      </div>
+      <div style={{ margin: "20px" }}>
+        <Button onClick={addDataToDB}>Guardar dato en indexedDB</Button>
+      </div>
+      <h5> Pruba de componente de la libreria mantine</h5>
+      <div style={{ width: "auto" }}>
+        <NativeSelect
+          value={value}
+          onChange={(event) => setValue(event.currentTarget.value)}
+          data={["React", "Angular", "Svelte", "Vue"]}
+        />
+      </div>
     </>
   );
 }
