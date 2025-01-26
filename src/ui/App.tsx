@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import "./App.css";
+import { db } from "./db/db";
 
 function App() {
   const [count, setCount] = useState(0);
@@ -15,6 +16,20 @@ function App() {
     const response = await window.electron.getStaticData("hpta");
     alert(response);
   };
+  const addDataToDB = async () => {
+    const age = 10;
+    const name = "Jhonny";
+    try {
+      // Add the new friend!
+      const id = await db.friends.add({
+        name,
+        age,
+      });
+      alert(`Friend ${name} successfully added. Got id ${id}`);
+    } catch (error) {
+      alert(`Failed to add ${name}: ${error}`);
+    }
+  };
   return (
     <>
       <div></div>
@@ -24,6 +39,7 @@ function App() {
           count is {count}
         </button>
         <button onClick={getStaticData}>Solicitar datos al backend</button>
+        <button onClick={addDataToDB}>Agregar datos a db</button>
         <p>
           Edit <code>src/App.tsx</code> and save to test HMR
         </p>
