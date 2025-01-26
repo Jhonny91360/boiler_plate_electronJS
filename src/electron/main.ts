@@ -6,6 +6,7 @@ import { sendDataToFront } from "./prueba.js";
 
 app.on("ready", () => {
   const mainWindow = new BrowserWindow({
+    width: 800,
     webPreferences: {
       preload: getPreloadPath(), //Añadis preload como seguridad
     },
@@ -19,7 +20,7 @@ app.on("ready", () => {
   }
 
   // Llamamos funcion para enviar datos al front cada 3 seg
-  sendDataToFront(mainWindow);
+  //sendDataToFront(mainWindow);
 
   // Manjemos peticion que llega del front
   ipcMain.handle("getStaticData", (_, datico: string) => {
