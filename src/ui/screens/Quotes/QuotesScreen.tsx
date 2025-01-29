@@ -1,6 +1,7 @@
 import {
   Button,
   Grid,
+  Image,
   Modal,
   NumberFormatter,
   Paper,
@@ -8,13 +9,16 @@ import {
   TextInput,
   Title,
 } from "@mantine/core";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Product } from "../../db/tables/Products/ProductsType";
 import { Client } from "../../db/tables/Clients/ClientsType";
 import { useDisclosure } from "@mantine/hooks";
 import { SelectClientModal } from "../Clients/SelectClientModal";
 import { SelectProductModal } from "../Products/SelectProductModal";
 import { useNavigate } from "react-router-dom";
+import { PDFViewer } from "@react-pdf/renderer";
+//import MyPDF from "../../components/pdf/PDFEjemploModal";
+import CotizacionTeesaModalPDF from "../../components/pdf/CotizacionTeesaModal";
 
 //Creamos interface con solo las propiedades que necesitamos del producto
 interface ProductQuote extends Omit<Product, "foto" | "referencia"> {
@@ -22,20 +26,28 @@ interface ProductQuote extends Omit<Product, "foto" | "referencia"> {
 }
 
 interface ClientQuote
-  extends Pick<Client, "nombre" | "encargado" | "correo" | "cargo"> {}
+  extends Pick<Client, "nombre" | "encargado" | "correo" | "cargo"> {
+  descuento?: number;
+  fecha: string;
+  tecnico: string;
+}
 export const QuotesScreen = () => {
+  const [rutaImagen, setRutaImagen] = useState("");
   const [products, setProducts] = useState<ProductQuote[]>([]);
   const [formData, setFormData] = useState<ClientQuote>({
     nombre: "",
     encargado: "",
     correo: "",
     cargo: "",
+    fecha: "",
+    tecnico: "",
   });
 
   const [openedClient, { open: openClient, close: closeClient }] =
     useDisclosure(false);
   const [openedProduct, { open: openProduct, close: closeProduct }] =
     useDisclosure(false);
+  const [openedPDF, { open: openPDF, close: closePDF }] = useDisclosure(false);
   const navigate = useNavigate();
 
   const handleChange = (
@@ -61,6 +73,17 @@ export const QuotesScreen = () => {
     setProducts(newProducts);
   };
   console.log("Productos cargados", products);
+
+  useEffect(() => {
+    const obtenerRutaImagen = async () => {
+      //@ts-ignore
+      const imagePath = await window.electron.getAssetPath("teesa_logo.png");
+      console.log("Ruta obtenida", imagePath);
+      setRutaImagen(imagePath);
+    };
+
+    obtenerRutaImagen();
+  }, []);
   return (
     <>
       <Button
@@ -180,7 +203,47 @@ export const QuotesScreen = () => {
             />
           </Paper>
         </Grid.Col>
+
+        <Grid.Col span={12} style={{ padding: "20px" }}>
+          <Paper shadow="xs">
+            <Title order={3}>Otros datos</Title>
+
+            <TextInput
+              label="Descuento"
+              name="descuento"
+              value={formData.nombre}
+              //onChange={handleChange}
+              mb="md"
+              type="number"
+            />
+            <TextInput
+              label="Fecha"
+              name="fecha"
+              value={formData.encargado}
+              //onChange={handleChange}
+              required
+              mb="md"
+            />
+            <TextInput
+              label="Tecnico"
+              name="tecnico"
+              value={formData.correo}
+              //onChange={handleChange}
+              required
+              mb="md"
+            />
+          </Paper>
+        </Grid.Col>
       </Grid>
+
+      <Button
+        color="green"
+        onClick={() => openPDF()}
+        style={{ marginTop: "20px" }}
+        mb="sm"
+      >
+        Generar cotización
+      </Button>
 
       <Modal
         opened={openedClient}
@@ -191,7 +254,7 @@ export const QuotesScreen = () => {
         {/* Modal content */}
         <SelectClientModal
           onClientSelect={(client) => {
-            setFormData(client);
+            setFormData({ ...client, fecha: "", tecnico: "" });
             closeClient();
           }}
         />
@@ -219,6 +282,30 @@ export const QuotesScreen = () => {
           }}
         />
       </Modal>
+
+      <Modal
+        opened={openedPDF}
+        onClose={closePDF}
+        title="Cotización"
+        size={"100%"}
+      >
+        {/* Modal content */}
+        <PDFViewer style={{ width: "100%", height: "800px" }}>
+          {/* <ContratoPDF
+            affiliteData={{}}
+            //image={imageFirma.split(',')[1]} />
+          /> */}
+          {/* <MyPDF /> */}
+          <CotizacionTeesaModalPDF urlImage={rutaImagen} />
+        </PDFViewer>
+      </Modal>
+
+      {rutaImagen !== "" && (
+        <Image
+          style={{ objectFit: "contain", objectPosition: "left" }}
+          src={rutaImagen}
+        />
+      )}
     </>
   );
 };

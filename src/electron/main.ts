@@ -6,7 +6,6 @@ import { sendDataToFront } from "./prueba.js";
 
 app.on("ready", () => {
   const mainWindow = new BrowserWindow({
-    width: 800,
     webPreferences: {
       preload: getPreloadPath(), //Añadis preload como seguridad
     },
@@ -25,5 +24,17 @@ app.on("ready", () => {
   // Manjemos peticion que llega del front
   ipcMain.handle("getStaticData", (_, datico: string) => {
     return `Peticion atendido me enviaste ${datico}`;
+  });
+
+  ipcMain.handle("getAssetPath", (_, assetName: string) => {
+    if (isDev()) {
+      return `/${assetName}`;
+    } else {
+      return `file://${path.join(
+        process.resourcesPath,
+        "resources",
+        "teesa_logo.png"
+      )}`;
+    }
   });
 });

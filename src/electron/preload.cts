@@ -11,4 +11,7 @@ electron.contextBridge.exposeInMainWorld("electron", {
   // Metodo para recibir peticiones
   getStaticData: (datico: string) =>
     electron.ipcRenderer.invoke("getStaticData", datico),
+
+  getAssetPath: (assetName: string) =>
+    electron.ipcRenderer.invoke("getAssetPath", assetName),
 });
