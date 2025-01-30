@@ -25,16 +25,4 @@ app.on("ready", () => {
   ipcMain.handle("getStaticData", (_, datico: string) => {
     return `Peticion atendido me enviaste ${datico}`;
   });
-
-  ipcMain.handle("getAssetPath", (_, assetName: string) => {
-    if (isDev()) {
-      return `/${assetName}`;
-    } else {
-      return `file://${path.join(
-        process.resourcesPath,
-        "resources",
-        "teesa_logo.png"
-      )}`;
-    }
-  });
 });

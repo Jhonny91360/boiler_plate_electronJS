@@ -1,7 +1,6 @@
 import {
   Button,
   Grid,
-  Image,
   Modal,
   NumberFormatter,
   Paper,
@@ -9,7 +8,7 @@ import {
   TextInput,
   Title,
 } from "@mantine/core";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Product } from "../../db/tables/Products/ProductsType";
 import { Client } from "../../db/tables/Clients/ClientsType";
 import { useDisclosure } from "@mantine/hooks";
@@ -32,7 +31,7 @@ interface ClientQuote
   tecnico: string;
 }
 export const QuotesScreen = () => {
-  const [rutaImagen, setRutaImagen] = useState("");
+  //const [rutaImagen, setRutaImagen] = useState("");
   const [products, setProducts] = useState<ProductQuote[]>([]);
   const [formData, setFormData] = useState<ClientQuote>({
     nombre: "",
@@ -74,16 +73,6 @@ export const QuotesScreen = () => {
   };
   console.log("Productos cargados", products);
 
-  useEffect(() => {
-    const obtenerRutaImagen = async () => {
-      //@ts-ignore
-      const imagePath = await window.electron.getAssetPath("teesa_logo.png");
-      console.log("Ruta obtenida", imagePath);
-      setRutaImagen(imagePath);
-    };
-
-    obtenerRutaImagen();
-  }, []);
   return (
     <>
       <Button
@@ -296,16 +285,9 @@ export const QuotesScreen = () => {
             //image={imageFirma.split(',')[1]} />
           /> */}
           {/* <MyPDF /> */}
-          <CotizacionTeesaModalPDF urlImage={rutaImagen} />
+          <CotizacionTeesaModalPDF urlImage={"teesa_logo.png"} />
         </PDFViewer>
       </Modal>
-
-      {rutaImagen !== "" && (
-        <Image
-          style={{ objectFit: "contain", objectPosition: "left" }}
-          src={rutaImagen}
-        />
-      )}
     </>
   );
 };
