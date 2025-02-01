@@ -285,7 +285,53 @@ export const QuotesScreen = () => {
             //image={imageFirma.split(',')[1]} />
           /> */}
           {/* <MyPDF /> */}
-          <CotizacionTeesaModalPDF urlImage={"teesa_logo.png"} />
+          <CotizacionTeesaModalPDF
+            consecutivo={"COT-TEESA-CLO-509-B"}
+            nombreCliente={"Don Makinon"}
+            cargoEncargado={"Area de Servicio Tecnico"}
+            nombreEncargado={"Leidy Rivera"}
+            nombreTecnico={"Victor Manuel Puertas"}
+            fecha={"25 de octubre de 2024"}
+            correoCliente={"servicioalcliente@donmakinon.com"}
+            productos={[
+              {
+                id: 1,
+                cantidad: 3,
+                servicio: "Mano de obra",
+                marca: "Rational",
+                descripcion: "Instalacion-horno",
+                valorTotal: 1119999,
+                entrega: "A convenir",
+                valorUnitario: 373333,
+              },
+              {
+                id: 2,
+                cantidad: 3,
+                servicio: "Mano de obra 2",
+                marca: "Rational",
+                descripcion: "Instalacion-horno",
+                valorTotal: 1119999,
+                entrega: "A convenir",
+                valorUnitario: 373333,
+              },
+              {
+                id: 3,
+                cantidad: 3,
+                servicio: "Mano de obra 3",
+                marca: "Rational",
+                descripcion: "Instalacion-horno",
+                valorTotal: 1119999,
+                entrega: "A convenir",
+                valorUnitario: 373333,
+              },
+            ]}
+            totalParcial={1119999}
+            descuento={0}
+            descuentoCalculado={0}
+            ivaCalculado={212800}
+            ofertaTotal={1332799}
+            nota={"Nota: UN (1) HORNO COMBI Y DOS (2) CLASSIC"}
+          />
         </PDFViewer>
       </Modal>
     </>
