@@ -64,6 +64,7 @@ import { HomeScreen } from "./screens/Home/HomeScreen";
 import { ProductsCrudScreen } from "./screens/Products/ProductsCrudScreen";
 import { ClientsCrudScreen } from "./screens/Clients/ClientsCrudScreen";
 import { QuotesScreen } from "./screens/Quotes/QuotesScreen";
+import { SettingsScreen } from "./screens/Settings/SettingsScreen";
 // import Productos from './Productos';
 // import Clientes from './Clientes';
 // import Cotizaciones from './Cotizaciones';
@@ -77,7 +78,7 @@ function App() {
         <Route path="/products" element={<ProductsCrudScreen />} />
         <Route path="/clients" element={<ClientsCrudScreen />} />
         <Route path="/quotes" element={<QuotesScreen />} />
-        {/*<Route path="/settings" element={<Configuracion />} />  */}
+        <Route path="/settings" element={<SettingsScreen />} />
       </Routes>
     </Router>
   );

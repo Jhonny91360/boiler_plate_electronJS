@@ -6,8 +6,9 @@ import {
   Text,
   View,
 } from "@react-pdf/renderer";
+import { formatCOP } from "../../utilities/GeneralFunctions/Functions";
 
-interface Props {
+export interface PropsPDF {
   consecutivo: string;
   nombreCliente: string;
   cargoEncargado: string;
@@ -15,7 +16,7 @@ interface Props {
   nombreTecnico: string;
   fecha: string;
   correoCliente: string;
-  productos: Producto[];
+  productos: ProductoPDF[];
   totalParcial: number;
   descuento: number;
   ivaCalculado: number;
@@ -24,7 +25,7 @@ interface Props {
   nota: string;
 }
 
-interface Producto {
+export interface ProductoPDF {
   id: number;
   servicio: string;
   marca: string;
@@ -107,7 +108,7 @@ const CotizacionTeesaModalPDF = ({
   descuentoCalculado,
   ivaCalculado,
   totalParcial,
-}: Props) => {
+}: PropsPDF) => {
   const ProductoTabulado: React.FC<{
     id: number;
     servicio: string;
@@ -135,8 +136,8 @@ const CotizacionTeesaModalPDF = ({
         <Text style={styles.tablaDescripcion}>{descripcion}</Text>
         <Text style={styles.tablaEntrega}>{entrega}</Text>
         <Text style={styles.tablaCan}>{cantidad}</Text>
-        <Text style={styles.tablaVrUnitario}>{valorUnitario}</Text>
-        <Text style={styles.tablaVrTotal}>{valorTotal}</Text>
+        <Text style={styles.tablaVrUnitario}>{formatCOP(valorUnitario)}</Text>
+        <Text style={styles.tablaVrTotal}>{formatCOP(valorTotal)}</Text>
       </View>
     );
   };
@@ -341,7 +342,7 @@ const CotizacionTeesaModalPDF = ({
                   color: "#032043",
                 }}
               >
-                COT-TEESA-CLO-509-B
+                {consecutivo ?? ""}
               </Text>
             </View>
           </View>
@@ -595,7 +596,7 @@ const CotizacionTeesaModalPDF = ({
                     borderBottom: "2px solid black",
                   }}
                 >
-                  {totalParcial ?? ""}
+                  {formatCOP(totalParcial) ?? ""}
                 </Text>
               </View>
 
@@ -631,7 +632,7 @@ const CotizacionTeesaModalPDF = ({
                       paddingHorizontal: "5px",
                     }}
                   >
-                    {descuento ?? ""}
+                    {`${descuento ?? 0}%`}
                   </Text>
                 </View>
 
@@ -642,7 +643,7 @@ const CotizacionTeesaModalPDF = ({
                     borderBottom: "2px solid black",
                   }}
                 >
-                  {descuentoCalculado ?? ""}
+                  {formatCOP(descuentoCalculado ?? 0)}
                 </Text>
               </View>
 
@@ -689,7 +690,7 @@ const CotizacionTeesaModalPDF = ({
                     borderBottom: "2px solid black",
                   }}
                 >
-                  {ivaCalculado ?? ""}
+                  {formatCOP(ivaCalculado ?? 0)}
                 </Text>
               </View>
 
@@ -715,7 +716,7 @@ const CotizacionTeesaModalPDF = ({
                     borderBottom: "2px solid black",
                   }}
                 >
-                  {ofertaTotal ?? ""}
+                  {formatCOP(ofertaTotal ?? 0)}
                 </Text>
               </View>
             </View>

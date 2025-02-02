@@ -1,6 +1,7 @@
 import Dexie, { type EntityTable } from "dexie";
 import { Product } from "./tables/Products/ProductsType";
 import { Client } from "./tables/Clients/ClientsType";
+import { Setting } from "./tables/Setting/SettingType";
 
 const db = new Dexie("TeesaDatabase") as Dexie & {
   products: EntityTable<
@@ -11,6 +12,10 @@ const db = new Dexie("TeesaDatabase") as Dexie & {
     Client,
     "id" // primary key "id" (for the typings only)
   >;
+  settings: EntityTable<
+    Setting,
+    "id" // primary key "id" (for the typings only)
+  >;
 };
 
 // Schema declaration:
@@ -18,6 +23,7 @@ db.version(1).stores({
   products: "++id, nombre, referencia, marca, valor_h, descripcion, foto", // primary key "id" (for the runtime!)
   clients:
     "++id, nit_cedula, nombre, direccion, ciudad, telefono, celular, correo, correo_opcional, fecha_registro, encargado, cargo",
+  settings: "++id, consecutivo",
 });
 
 export { db };

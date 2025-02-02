@@ -5,10 +5,11 @@ import {
   NumberFormatter,
   Paper,
   Table,
+  Textarea,
   TextInput,
   Title,
 } from "@mantine/core";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Product } from "../../db/tables/Products/ProductsType";
 import { Client } from "../../db/tables/Clients/ClientsType";
 import { useDisclosure } from "@mantine/hooks";
@@ -17,7 +18,11 @@ import { SelectProductModal } from "../Products/SelectProductModal";
 import { useNavigate } from "react-router-dom";
 import { PDFViewer } from "@react-pdf/renderer";
 //import MyPDF from "../../components/pdf/PDFEjemploModal";
-import CotizacionTeesaModalPDF from "../../components/pdf/CotizacionTeesaModal";
+import CotizacionTeesaModalPDF, {
+  ProductoPDF,
+  PropsPDF,
+} from "../../components/pdf/CotizacionTeesaModal";
+import { db } from "../../db/db";
 
 //Creamos interface con solo las propiedades que necesitamos del producto
 interface ProductQuote extends Omit<Product, "foto" | "referencia"> {
@@ -26,20 +31,24 @@ interface ProductQuote extends Omit<Product, "foto" | "referencia"> {
 
 interface ClientQuote
   extends Pick<Client, "nombre" | "encargado" | "correo" | "cargo"> {
+  consecutivo: string;
   descuento?: number;
   fecha: string;
   tecnico: string;
+  nota: string;
 }
 export const QuotesScreen = () => {
-  //const [rutaImagen, setRutaImagen] = useState("");
+  const [pdfData, setPdfData] = useState<PropsPDF>();
   const [products, setProducts] = useState<ProductQuote[]>([]);
   const [formData, setFormData] = useState<ClientQuote>({
+    consecutivo: "COT-TEESA-CLO-000-B",
     nombre: "",
     encargado: "",
     correo: "",
     cargo: "",
-    fecha: "",
+    fecha: new Date().toLocaleDateString("es-ES"),
     tecnico: "",
+    nota: "",
   });
 
   const [openedClient, { open: openClient, close: closeClient }] =
@@ -67,14 +76,103 @@ export const QuotesScreen = () => {
     setProducts(newProducts);
   };
 
+  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  const handleFormChangeArea = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
   const deleteProductFromQuote = (productId: number) => {
     const newProducts = products.filter((product) => product.id !== productId);
     setProducts(newProducts);
   };
+
+  const generarCotizacion = () => {
+    const productosFormateados: ProductoPDF[] = products.map(
+      (product, index) => ({
+        id: index + 1,
+        servicio: product.nombre,
+        marca: product.marca,
+        descripcion: product.descripcion,
+        entrega: "A convenir",
+        cantidad: product.cantidad,
+        valorUnitario: product.valor_h,
+        valorTotal: product.cantidad * product.valor_h,
+      })
+    );
+    const totalParcial = productosFormateados.reduce(
+      (total, product) => total + product.valorTotal,
+      0
+    );
+
+    const descuento = formData.descuento
+      ? (totalParcial * formData.descuento) / 100
+      : 0;
+    const ivaCalculado = totalParcial * 0.19;
+    const ofertaTotal = totalParcial - descuento + ivaCalculado;
+
+    const pdfData: PropsPDF = {
+      consecutivo: formData.consecutivo,
+      nombreCliente: formData.nombre,
+      cargoEncargado: formData.cargo,
+      nombreEncargado: formData.encargado,
+      nombreTecnico: formData.tecnico,
+      fecha: formData.fecha,
+      correoCliente: formData.correo,
+      productos: productosFormateados,
+      totalParcial: totalParcial,
+      descuento: formData.descuento ?? 0,
+      ivaCalculado: ivaCalculado,
+      descuentoCalculado: descuento ?? 0,
+      ofertaTotal: ofertaTotal,
+      nota: formData.nota,
+    };
+
+    setPdfData(pdfData);
+    openPDF();
+  };
+
+  const updateConsecutivo = async () => {
+    const settings = await db.settings.get(1);
+    if (settings) {
+      const newConsecutivo = Number(settings.consecutivo) + 1;
+      await db.settings.put({ id: 1, consecutivo: newConsecutivo });
+      alert("Consecutivo actualizado");
+      setFormData((prevData) => ({
+        ...prevData,
+        consecutivo: `COT-TEESA-CLO-${newConsecutivo}-B`,
+      }));
+      closePDF();
+    }
+  };
+
+  useEffect(() => {
+    const getConsecutivo = async () => {
+      const settings = await db.settings.get(1);
+      if (settings) {
+        setFormData((prevData) => ({
+          ...prevData,
+          consecutivo: `COT-TEESA-CLO-${settings.consecutivo ?? 0}-B`,
+        }));
+      }
+    };
+    getConsecutivo();
+  }, []);
+
   console.log("Productos cargados", products);
+  console.log("Datos del formulario", formData);
 
   return (
-    <>
+    <div style={{ padding: "20px" }}>
       <Button
         style={{ marginBottom: "100px" }}
         onClick={() => {
@@ -200,25 +298,32 @@ export const QuotesScreen = () => {
             <TextInput
               label="Descuento"
               name="descuento"
-              value={formData.nombre}
-              //onChange={handleChange}
+              value={formData.descuento}
+              onChange={handleFormChange}
               mb="md"
               type="number"
             />
             <TextInput
               label="Fecha"
               name="fecha"
-              value={formData.encargado}
-              //onChange={handleChange}
+              value={formData.fecha}
+              onChange={handleFormChange}
               required
               mb="md"
             />
             <TextInput
               label="Tecnico"
               name="tecnico"
-              value={formData.correo}
-              //onChange={handleChange}
+              value={formData.tecnico}
+              onChange={handleFormChange}
               required
+              mb="md"
+            />
+            <Textarea
+              label="Nota"
+              name="nota"
+              value={formData.nota}
+              onChange={handleFormChangeArea}
               mb="md"
             />
           </Paper>
@@ -227,7 +332,7 @@ export const QuotesScreen = () => {
 
       <Button
         color="green"
-        onClick={() => openPDF()}
+        onClick={generarCotizacion}
         style={{ marginTop: "20px" }}
         mb="sm"
       >
@@ -243,7 +348,13 @@ export const QuotesScreen = () => {
         {/* Modal content */}
         <SelectClientModal
           onClientSelect={(client) => {
-            setFormData({ ...client, fecha: "", tecnico: "" });
+            setFormData({
+              ...client,
+              fecha: formData.fecha,
+              tecnico: "",
+              nota: "",
+              consecutivo: formData.consecutivo,
+            });
             closeClient();
           }}
         />
@@ -279,61 +390,23 @@ export const QuotesScreen = () => {
         size={"100%"}
       >
         {/* Modal content */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            width: "100%",
+            marginBottom: "20px",
+          }}
+        >
+          <Button color="green" onClick={updateConsecutivo}>
+            Registrar
+          </Button>
+        </div>
+
         <PDFViewer style={{ width: "100%", height: "800px" }}>
-          {/* <ContratoPDF
-            affiliteData={{}}
-            //image={imageFirma.split(',')[1]} />
-          /> */}
-          {/* <MyPDF /> */}
-          <CotizacionTeesaModalPDF
-            consecutivo={"COT-TEESA-CLO-509-B"}
-            nombreCliente={"Don Makinon"}
-            cargoEncargado={"Area de Servicio Tecnico"}
-            nombreEncargado={"Leidy Rivera"}
-            nombreTecnico={"Victor Manuel Puertas"}
-            fecha={"25 de octubre de 2024"}
-            correoCliente={"servicioalcliente@donmakinon.com"}
-            productos={[
-              {
-                id: 1,
-                cantidad: 3,
-                servicio: "Mano de obra",
-                marca: "Rational",
-                descripcion: "Instalacion-horno",
-                valorTotal: 1119999,
-                entrega: "A convenir",
-                valorUnitario: 373333,
-              },
-              {
-                id: 2,
-                cantidad: 3,
-                servicio: "Mano de obra 2",
-                marca: "Rational",
-                descripcion: "Instalacion-horno",
-                valorTotal: 1119999,
-                entrega: "A convenir",
-                valorUnitario: 373333,
-              },
-              {
-                id: 3,
-                cantidad: 3,
-                servicio: "Mano de obra 3",
-                marca: "Rational",
-                descripcion: "Instalacion-horno",
-                valorTotal: 1119999,
-                entrega: "A convenir",
-                valorUnitario: 373333,
-              },
-            ]}
-            totalParcial={1119999}
-            descuento={0}
-            descuentoCalculado={0}
-            ivaCalculado={212800}
-            ofertaTotal={1332799}
-            nota={"Nota: UN (1) HORNO COMBI Y DOS (2) CLASSIC"}
-          />
+          {pdfData && <CotizacionTeesaModalPDF {...pdfData} />}
         </PDFViewer>
       </Modal>
-    </>
+    </div>
   );
 };
