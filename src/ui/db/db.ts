@@ -22,7 +22,7 @@ const db = new Dexie("TeesaDatabase") as Dexie & {
 db.version(1).stores({
   products: "++id, nombre, referencia, marca, valor_h, descripcion, foto", // primary key "id" (for the runtime!)
   clients:
-    "++id, nit_cedula, nombre, direccion, ciudad, telefono, celular, correo, correo_opcional, fecha_registro, encargado, cargo",
+    "++id, nit_cedula, nombre, direccion, ciudad, telefono, celular, correo, correo_opcional, fecha_registro, encargado, cargo, tipoPago",
   settings: "++id, consecutivo",
 });
 

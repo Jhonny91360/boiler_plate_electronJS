@@ -11,4 +11,12 @@ export interface Client {
   fecha_registro: string;
   encargado: string;
   cargo: string;
+  tipoPago: PaymentType | string;
+}
+
+export enum PaymentType {
+  Contado = "Contado",
+  Credito15 = "Credito 15",
+  Credito30 = "Credito 30",
+  Credito60 = "Credito 60",
 }

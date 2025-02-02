@@ -1,9 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { Grid, Paper, TextInput, Button, Table, Title } from "@mantine/core";
+import {
+  Grid,
+  Paper,
+  TextInput,
+  Button,
+  Table,
+  Title,
+  Select,
+} from "@mantine/core";
 
 import { db } from "../../db/db"; // Importa la base de datos Dexie
 import { useNavigate } from "react-router-dom";
-import { Client } from "../../db/tables/Clients/ClientsType";
+import { Client, PaymentType } from "../../db/tables/Clients/ClientsType";
 
 export const ClientsCrudScreen = () => {
   const [formData, setFormData] = useState<Client>({
@@ -19,11 +27,12 @@ export const ClientsCrudScreen = () => {
     fecha_registro: "",
     encargado: "",
     cargo: "",
+    tipoPago: "",
   });
 
   const [clients, setClients] = useState<Client[]>([]);
   const [search, setSearch] = useState("");
-
+  const [key, setKey] = useState(0); // Key dinámica para forzar re-render
   // Cargar los clientes desde la base de datos
   useEffect(() => {
     const loadClients = async () => {
@@ -51,6 +60,16 @@ export const ClientsCrudScreen = () => {
     }));
   };
 
+  //value: string | null, option: ComboboxItem
+  const handleSelectChange = (value: string | null) => {
+    if (value) {
+      setFormData((prevData) => ({
+        ...prevData,
+        tipoPago: value,
+      }));
+    }
+  };
+
   // Guardar un nuevo cliente
   const handleSave = async () => {
     const { id, ...restData } = formData;
@@ -69,9 +88,11 @@ export const ClientsCrudScreen = () => {
       fecha_registro: "",
       encargado: "",
       cargo: "",
+      tipoPago: "",
     });
     const allClients = await db.clients.toArray();
     setClients(allClients);
+    setKey((prev) => prev + 1);
   };
 
   // Modificar un producto existente
@@ -93,7 +114,9 @@ export const ClientsCrudScreen = () => {
       fecha_registro: "",
       encargado: "",
       cargo: "",
+      tipoPago: "",
     });
+    setKey((prev) => prev + 1);
   };
 
   // Eliminar un producto
@@ -115,12 +138,17 @@ export const ClientsCrudScreen = () => {
       fecha_registro: "",
       encargado: "",
       cargo: "",
+      tipoPago: "",
     });
+    setKey((prev) => prev + 1);
   };
 
   // Manejar el clic en una fila de la tabla
   const handleRowClick = (client: Client) => {
+    console.log("cargando...", client.tipoPago);
+    if (!client.tipoPago) client.tipoPago = "";
     setFormData(client);
+    setKey((prev) => prev + 1);
   };
 
   const navigate = useNavigate();
@@ -140,7 +168,7 @@ export const ClientsCrudScreen = () => {
       </Grid.Col>
 
       {/* Formulario a la izquierda */}
-      <Grid.Col span={12} style={{ padding: "20px" }}>
+      <Grid.Col span={12} style={{ padding: "20px" }} key={key}>
         <Paper shadow="xs">
           <Title order={3}>Formulario de Cliente</Title>
           <TextInput
@@ -251,38 +279,18 @@ export const ClientsCrudScreen = () => {
             mb="md"
           />
 
-          {/* <TextInput
-            label="Referencia"
-            name="referencia"
-            value={formData.referencia}
-            onChange={handleChange}
+          <Select
+            label="Tipo de Pago"
+            name="tipoPago"
+            value={formData.tipoPago}
+            onChange={handleSelectChange}
             required
             mb="md"
+            data={Object.values(PaymentType).map((paymentType) => ({
+              value: paymentType,
+              label: paymentType,
+            }))}
           />
-          <TextInput
-            label="Marca"
-            name="marca"
-            value={formData.marca}
-            onChange={handleChange}
-            required
-            mb="md"
-          />
-          <TextInput
-            label="Valor/Hora"
-            name="valor_h"
-            type="number"
-            value={formData.valor_h}
-            onChange={handleChange}
-            required
-            mb="md"
-          />
-
-          <FileInput
-            label="Foto"
-            value={formData.foto}
-            onChange={handleFileChange}
-            mb="md"
-          /> */}
 
           <footer
             style={{
