@@ -30,7 +30,10 @@ interface ProductQuote extends Omit<Product, "foto" | "referencia"> {
 }
 
 interface ClientQuote
-  extends Pick<Client, "nombre" | "encargado" | "correo" | "cargo"> {
+  extends Pick<
+    Client,
+    "nombre" | "encargado" | "correo" | "cargo" | "tipoPago"
+  > {
   consecutivo: string;
   descuento?: number;
   fecha: string;
@@ -49,6 +52,7 @@ export const QuotesScreen = () => {
     fecha: new Date().toLocaleDateString("es-ES"),
     tecnico: "",
     nota: "",
+    tipoPago: "",
   });
 
   const [openedClient, { open: openClient, close: closeClient }] =
@@ -96,19 +100,34 @@ export const QuotesScreen = () => {
     setProducts(newProducts);
   };
 
-  const generarCotizacion = () => {
+  const generarCotizacion = async () => {
     const productosFormateados: ProductoPDF[] = products.map(
-      (product, index) => ({
-        id: index + 1,
-        servicio: product.nombre,
-        marca: product.marca,
-        descripcion: product.descripcion,
-        entrega: "A convenir",
-        cantidad: product.cantidad,
-        valorUnitario: product.valor_h,
-        valorTotal: product.cantidad * product.valor_h,
-      })
+      (product, index) => {
+        return {
+          id: index + 1,
+          servicio: product.nombre,
+          marca: product.marca,
+          descripcion: product.descripcion,
+          entrega: "A convenir",
+          cantidad: product.cantidad,
+          valorUnitario: product.valor_h,
+          valorTotal: product.cantidad * product.valor_h,
+        };
+      }
     );
+
+    // Aplicar aumentos de porcentaje segun tipo de pago del cliente
+    for (let i = 0; i < productosFormateados.length; i++) {
+      const valorUnitarioCalculado = await applyPayment(
+        productosFormateados[i].valorUnitario,
+        formData.tipoPago
+      );
+      console.log("valor calculado", valorUnitarioCalculado);
+      productosFormateados[i].valorUnitario = valorUnitarioCalculado;
+      productosFormateados[i].valorTotal =
+        valorUnitarioCalculado * productosFormateados[i].cantidad;
+    }
+
     const totalParcial = productosFormateados.reduce(
       (total, product) => total + product.valorTotal,
       0
@@ -145,7 +164,14 @@ export const QuotesScreen = () => {
     const settings = await db.settings.get(1);
     if (settings) {
       const newConsecutivo = Number(settings.consecutivo) + 1;
-      await db.settings.put({ id: 1, consecutivo: newConsecutivo });
+      await db.settings.put({
+        id: 1,
+        consecutivo: newConsecutivo,
+        contado: settings.contado,
+        credito15: settings.credito15,
+        credito30: settings.credito30,
+        credito60: settings.credito60,
+      });
       alert("Consecutivo actualizado");
       setFormData((prevData) => ({
         ...prevData,
@@ -153,6 +179,29 @@ export const QuotesScreen = () => {
       }));
       closePDF();
     }
+  };
+
+  const applyPayment = async (valor: number, tipoPago: string) => {
+    const setting = await db.settings.get(1);
+    const valorNum = Number(valor);
+    let multiple = 1;
+    if (setting) {
+      if (tipoPago === "Contado") {
+        multiple = Number(setting.contado);
+      } else if (tipoPago === "Credito 15") {
+        multiple = Number(setting.credito15);
+      } else if (tipoPago === "Credito 30") {
+        multiple = Number(setting.credito30);
+      } else if (tipoPago === "Credito 60") {
+        multiple = Number(setting.credito60);
+      }
+    }
+
+    if (typeof multiple !== "number" || multiple <= 0) {
+      return valorNum;
+    }
+
+    return valorNum + valorNum * (multiple / 100);
   };
 
   useEffect(() => {
@@ -256,7 +305,6 @@ export const QuotesScreen = () => {
               label="Nombre"
               name="nombre"
               value={formData.nombre}
-              //onChange={handleChange}
               required
               mb="md"
               disabled
@@ -265,7 +313,6 @@ export const QuotesScreen = () => {
               label="Encargado"
               name="encargado"
               value={formData.encargado}
-              //onChange={handleChange}
               required
               mb="md"
               disabled
@@ -274,7 +321,6 @@ export const QuotesScreen = () => {
               label="Correo"
               name="correo"
               value={formData.correo}
-              //onChange={handleChange}
               required
               mb="md"
               disabled
@@ -283,7 +329,15 @@ export const QuotesScreen = () => {
               label="Cargo"
               name="cargo"
               value={formData.cargo}
-              //onChange={handleChange}
+              required
+              mb="md"
+              disabled
+            />
+
+            <TextInput
+              label="Tipo de pago"
+              name="tipoPago"
+              value={formData.tipoPago}
               required
               mb="md"
               disabled

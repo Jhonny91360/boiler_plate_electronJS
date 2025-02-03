@@ -8,6 +8,10 @@ export const SettingsScreen = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState<Setting>({
     consecutivo: 0,
+    contado: 0,
+    credito15: 0,
+    credito30: 0,
+    credito60: 0,
   });
   const getSettings = async () => {
     const setting = await db.settings.get(1);
@@ -60,6 +64,48 @@ export const SettingsScreen = () => {
               type="number"
               name="consecutivo"
               value={formData.consecutivo}
+              onChange={handleChange}
+              required
+              mb="md"
+            />
+
+            <Title order={4}>Tipos de pago</Title>
+
+            <TextInput
+              label="Contado"
+              type="number"
+              name="contado"
+              value={formData.contado}
+              onChange={handleChange}
+              required
+              mb="md"
+            />
+
+            <TextInput
+              label="Credito 15"
+              type="number"
+              name="credito15"
+              value={formData.credito15}
+              onChange={handleChange}
+              required
+              mb="md"
+            />
+
+            <TextInput
+              label="Credito 30"
+              type="number"
+              name="credito30"
+              value={formData.credito30}
+              onChange={handleChange}
+              required
+              mb="md"
+            />
+
+            <TextInput
+              label="Credito 60"
+              type="number"
+              name="credito60"
+              value={formData.credito60}
               onChange={handleChange}
               required
               mb="md"
