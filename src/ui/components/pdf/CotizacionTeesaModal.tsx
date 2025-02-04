@@ -435,7 +435,7 @@ const CotizacionTeesaModalPDF = ({
                   textDecoration: "underline",
                 }}
               >
-                proyectos.teesa@gmail.com
+                asistente1.teesa@gmail.com
               </Text>
             </View>
           </View>
@@ -873,7 +873,7 @@ const CotizacionTeesaModalPDF = ({
           >
             <Text>VICTOR MANUEL PUERTAS DIAZ</Text>
             <Text>Director de proyectos</Text>
-            <Text>proyectos.teesa@gmail.com</Text>
+            <Text>asistente1.teesa@gmail.com</Text>
           </View>
         </View>
         {/* Septimo cuadro Datos generales teesa */}

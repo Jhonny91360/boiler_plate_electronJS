@@ -38,7 +38,7 @@ const MyPDF = () => (
       <View style={styles.section}>
         <Text style={styles.title}>Cliente:</Text>
         <Text style={styles.text}>Victor Manuel Puertas Diaz</Text>
-        <Text style={styles.text}>Correo: proyectos.teesa@gmail.com</Text>
+        <Text style={styles.text}>Correo: asistente1.teesa@gmail.com</Text>
       </View>
 
       <View style={styles.section}>

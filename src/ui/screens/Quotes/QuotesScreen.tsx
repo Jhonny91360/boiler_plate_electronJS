@@ -44,7 +44,7 @@ export const QuotesScreen = () => {
   const [pdfData, setPdfData] = useState<PropsPDF>();
   const [products, setProducts] = useState<ProductQuote[]>([]);
   const [formData, setFormData] = useState<ClientQuote>({
-    consecutivo: "COT-TEESA-CLO-000-B",
+    consecutivo: "COT-TEESA-CLO-000",
     nombre: "",
     encargado: "",
     correo: "",
@@ -175,7 +175,7 @@ export const QuotesScreen = () => {
       alert("Consecutivo actualizado");
       setFormData((prevData) => ({
         ...prevData,
-        consecutivo: `COT-TEESA-CLO-${newConsecutivo}-B`,
+        consecutivo: `COT-TEESA-CLO-${newConsecutivo}`,
       }));
       closePDF();
     }
@@ -210,7 +210,7 @@ export const QuotesScreen = () => {
       if (settings) {
         setFormData((prevData) => ({
           ...prevData,
-          consecutivo: `COT-TEESA-CLO-${settings.consecutivo ?? 0}-B`,
+          consecutivo: `COT-TEESA-CLO-${settings.consecutivo ?? 0}`,
         }));
       }
     };
