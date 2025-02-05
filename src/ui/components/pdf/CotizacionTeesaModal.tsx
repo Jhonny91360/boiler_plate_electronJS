@@ -292,12 +292,12 @@ const CotizacionTeesaModalPDF = ({
                 color: "#032043",
               }}
             >
-              SUMINISTRO DE EQUIPOS, SUMINISTRO E IMPORTACIÓN DE REPUESTOS,
-              SUMINISTRO DE QUIMICOS PARA LIMPIEZA, MANTENIMIENTO DE EQUIPOS,
-              SERVICIO TECNICO ESPECIALIZADO DE EQUIPOS, TRASLADO DE EQUIPOS,
-              INSTALACIÓN DE EQUIPOS NUEVOS, DISEÑO, CAPACITACIÓN Y
-              AUTOMATIZACIÓN DE EQUIPOS DE COCINA INDUSTRIALES DE LA INDUSTRIA
-              ALIMENTARIA
+              Suministro de equipos, suministro e importación de repuestos,
+              suministro de químicos para limpieza, mantenimiento de equipos,
+              servicio técnico especializado de equipos, traslado de equipos,
+              instalación de equipos nuevos, diseño, capacitación y
+              automatización de equipos de cocina industriales de la industria
+              alimentaria
             </Text>
           </View>
           <View

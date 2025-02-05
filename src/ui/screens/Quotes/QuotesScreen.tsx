@@ -27,6 +27,7 @@ import { db } from "../../db/db";
 
 //Creamos interface con solo las propiedades que necesitamos del producto
 interface ProductQuote extends Omit<Product, "foto" | "referencia"> {
+  horas: number;
   cantidad: number;
 }
 
@@ -64,12 +65,30 @@ export const QuotesScreen = () => {
   const navigate = useNavigate();
 
   const handleChange = (value: number, productId: number) => {
+    // cambio las horas asignadas al producto
+    const newProducts = products.map((product) => {
+      if (product.id === productId) {
+        return {
+          ...product,
+          horas: Number(value),
+        };
+      }
+      return product;
+    });
+
+    setProducts(newProducts);
+  };
+
+  const handleChangeEvent = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    productId: number
+  ) => {
     //cambio la cantidad del producto
     const newProducts = products.map((product) => {
       if (product.id === productId) {
         return {
           ...product,
-          cantidad: Number(value),
+          cantidad: Number(e.target.value),
         };
       }
       return product;
@@ -108,7 +127,7 @@ export const QuotesScreen = () => {
           descripcion: product.descripcion,
           entrega: "A convenir",
           cantidad: product.cantidad,
-          valorUnitario: product.valor_h,
+          valorUnitario: product.valor_h * product.horas,
           valorTotal: product.cantidad * product.valor_h,
         };
       }
@@ -235,7 +254,8 @@ export const QuotesScreen = () => {
             <Table.Th>Producto</Table.Th>
             <Table.Th>Marca</Table.Th>
             <Table.Th>Descripción</Table.Th>
-            <Table.Th>Precio</Table.Th>
+            <Table.Th>Valor/hora</Table.Th>
+            <Table.Th>Horas</Table.Th>
             <Table.Th>Cantidad</Table.Th>
           </Table.Tr>
         </Table.Thead>
@@ -268,21 +288,9 @@ export const QuotesScreen = () => {
                 />
               </Table.Td>
               <Table.Td>
-                {/* <TextInput
-                  //label="Valor/Hora"
-                  name="cantidad"
-                  type="number"
-                  value={product.cantidad}
-                  onChange={(e) => {
-                    product.id && handleChange(e, product.id);
-                  }}
-                  required
-                  size="xs"
-                /> */}
                 <NumberInput
-                  label="Valor/Hora"
-                  name="cantidad"
-                  value={product.cantidad}
+                  name="horas"
+                  value={product.horas}
                   onChange={(value) => {
                     product.id && handleChange(Number(value), product.id);
                   }}
@@ -292,6 +300,18 @@ export const QuotesScreen = () => {
                   min={0} // Opcional: evita valores negativos si lo necesitas
                   step={0.1} // Define el incremento mínimo
                   //precision={2} // Limita el número de decimales
+                />
+              </Table.Td>
+              <Table.Td>
+                <TextInput
+                  name="cantidad"
+                  type="number"
+                  value={product.cantidad}
+                  onChange={(e) => {
+                    product.id && handleChangeEvent(e, product.id);
+                  }}
+                  required
+                  size="xs"
                 />
               </Table.Td>
             </Table.Tr>
@@ -442,6 +462,7 @@ export const QuotesScreen = () => {
               descripcion: product.descripcion,
               valor_h: product.valor_h,
               cantidad: 1,
+              horas: 1,
             };
             setProducts([...products, productFormat]);
             closeProduct();
