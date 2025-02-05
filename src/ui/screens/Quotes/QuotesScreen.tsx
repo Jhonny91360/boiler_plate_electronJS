@@ -3,6 +3,7 @@ import {
   Grid,
   Modal,
   NumberFormatter,
+  NumberInput,
   Paper,
   Table,
   Textarea,
@@ -62,16 +63,13 @@ export const QuotesScreen = () => {
   const [openedPDF, { open: openPDF, close: closePDF }] = useDisclosure(false);
   const navigate = useNavigate();
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    productId: number
-  ) => {
+  const handleChange = (value: number, productId: number) => {
     //cambio la cantidad del producto
     const newProducts = products.map((product) => {
       if (product.id === productId) {
         return {
           ...product,
-          cantidad: Number(e.target.value),
+          cantidad: Number(value),
         };
       }
       return product;
@@ -270,7 +268,7 @@ export const QuotesScreen = () => {
                 />
               </Table.Td>
               <Table.Td>
-                <TextInput
+                {/* <TextInput
                   //label="Valor/Hora"
                   name="cantidad"
                   type="number"
@@ -280,6 +278,20 @@ export const QuotesScreen = () => {
                   }}
                   required
                   size="xs"
+                /> */}
+                <NumberInput
+                  label="Valor/Hora"
+                  name="cantidad"
+                  value={product.cantidad}
+                  onChange={(value) => {
+                    product.id && handleChange(Number(value), product.id);
+                  }}
+                  required
+                  size="xs"
+                  decimalSeparator="." // Asegura que el separador decimal sea un punto
+                  min={0} // Opcional: evita valores negativos si lo necesitas
+                  step={0.1} // Define el incremento mínimo
+                  //precision={2} // Limita el número de decimales
                 />
               </Table.Td>
             </Table.Tr>
